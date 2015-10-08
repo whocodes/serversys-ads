@@ -56,7 +56,7 @@ public void OnClientDisconnect(int client){
 }
 
 public void OnAllPluginsLoaded(){
-	Sys_RegisterChatCommand(Ads_command, Command_ToggleAds);
+	Sys_RegisterChatCommand(Ads_Command, Command_ToggleAds);
 }
 
 public void Command_ToggleAds(int client, const char[] command, const char[] args){
@@ -65,12 +65,12 @@ public void Command_ToggleAds(int client, const char[] command, const char[] arg
 			case true:{
 				SetClientCookie(client, Ads_Cookie, "0");
 				Ads_Enabled[client] = false;
-				PrintTextChat("%t", "Ads toggled", "disabled");
+				PrintTextChat(client, "%t", "Ads toggled", "disabled");
 			}
 			case false:{
 				SetClientCookie(client, Ads_Cookie, "1");
 				Ads_Enabled[client] = true;
-				PrintTextChat("%t", "Ads toggled", "enabled");
+				PrintTextChat(client, "%t", "Ads toggled", "enabled");
 			}
 		}
 	}
@@ -86,7 +86,7 @@ void LoadConfig(){
 		SetFailState("[serversys] ads :: Cannot read from configuration file: %s", Config_Path);
     }
 
-	EnablePlugin = view_as<bool>KvGetNum(kv, "enabled", 1);
+	EnablePlugin = view_as<bool>(KvGetNum(kv, "enabled", 1));
 	KvGetString(kv, "ads-prefix", Ads_Prefix, sizeof(Ads_Prefix), "[Ads]");
 	KvGetString(kv, "ads-command", Ads_Command, sizeof(Ads_Command), "!ads /ads !toggleads /toggleads");
 	Ads_Interval = KvGetFloat(kv, "ads-interval", 90.0);

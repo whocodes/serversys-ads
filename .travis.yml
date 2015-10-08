@@ -6,8 +6,8 @@ addons:
 
 env:
   global:
-    - INCLUDE=addons/sourcemod/scripting/include/
-    - SCRIPTING=addons/sourcemod/scripting/
+    - INCLUDE=game_upload/addons/sourcemod/scripting/include/
+    - SCRIPTING=game_upload/addons/sourcemod/scripting/
     - SOURCEMOD_MAJOR=1.7
     - SOURCEMOD_MINOR=1.7.3-git5258
 
@@ -35,11 +35,12 @@ install:
 before_script:
   - chmod +rx build-env/addons/sourcemod/scripting/spcomp
   - chmod +rx build-env/addons/sourcemod/scripting/compile.sh
-  - cd build-env/addons/sourcemod/scripting/
 
 script:
-  - ./compile.sh
+  - ./build-env/addons/sourcemod/scripting/compile.sh
 
 after_success:
-  - cd compiled
-  - find . -type f -exec curl --user $FTPUSER:$FTPPASS --ftp-create-dirs -T {} ftp://$FTPPATH/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/{} \;
+  - mkdir game_upload/addons/sourcemod/plugins
+  - cp -rv build-env/addons/sourcemod/scripting/compiled game_upload/addons/sourcemod/plugins/
+  - cd game_upload
+  - find . -type f -exec curl --user $FTPUSER:$FTPPASS --ftp-create-dirs -T {} ftp://$FTPPATH/github-sourcemod/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/{} \;

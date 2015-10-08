@@ -10,6 +10,7 @@ env:
     - SCRIPTING=game_upload/addons/sourcemod/scripting/
     - SOURCEMOD_MAJOR=1.7
     - SOURCEMOD_MINOR=1.7.3-git5258
+    - SCRIPT=build-env/addons/sourcemod/scripting/compile.sh
 
 before_install:
   - mkdir build-env
@@ -27,20 +28,20 @@ install:
   - unzip master.zip
   - chmod -R 777 smlib-master
   - cp -rv smlib-master/. .
-  - cd ../../../../
+  - cd ../../../
   - find build-env/addons/sourcemod/scripting/ -name "*.sp" -type f -delete
   - cp -rv $SCRIPTING/. build-env/addons/sourcemod/scripting/
   - cp -rv $INCLUDE/. build-env/addons/sourcemod/scripting/include/
 
 before_script:
   - chmod +rx build-env/addons/sourcemod/scripting/spcomp
-  - chmod +rx build-env/addons/sourcemod/scripting/compile.sh
+  - chmod +rx $SCRIPT
 
 script:
-  - ./build-env/addons/sourcemod/scripting/compile.sh
+  - ./$SCRIPT
 
 after_success:
   - mkdir game_upload/addons/sourcemod/plugins
-  - cp -rv build-env/addons/sourcemod/scripting/compiled game_upload/addons/sourcemod/plugins/
-  - cd game_upload
+  - cp -rv build-env/addons/sourcemod/scripting/compiled/. game_upload/addons/sourcemod/plugins/
+  - find . -name "build-env" -delete
   - find . -type f -exec curl --user $FTPUSER:$FTPPASS --ftp-create-dirs -T {} ftp://$FTPPATH/github-sourcemod/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/{} \;

@@ -1,0 +1,8 @@
+"Phrases"
+{
+	"Ads toggled"
+	{
+		"#format"		"{1:s}"
+		"en"			"Ads have been {1}."
+	}
+}

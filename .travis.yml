@@ -27,7 +27,7 @@ install:
   - unzip master.zip
   - chmod -R 777 smlib-master
   - cp -rv smlib-master/. .
-  - cd ../../../../../
+  - cd ../../../../
   - find build-env/addons/sourcemod/scripting/ -name "*.sp" -type f -delete
   - cp -rv $SCRIPTING/. build-env/addons/sourcemod/scripting/
   - cp -rv $INCLUDE/. build-env/addons/sourcemod/scripting/include/

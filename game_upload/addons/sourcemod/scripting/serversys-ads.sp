@@ -162,7 +162,7 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 				SetFailState("[serversys] ads :: Too many attempts to connect.");
 		}
 
-		if(Ads_Current <= Ads_Array.Length){
+		if(Ads_Current < Ads_Array.Length){
 			Ads_Current++;
 		}else{
 			Ads_Current = 0;

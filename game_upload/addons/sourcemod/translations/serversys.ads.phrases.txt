@@ -3,6 +3,6 @@
 	"Ads toggled"
 	{
 		"#format"		"{1:s}"
-		"en"			"Ads have been {1}."
+		"en"			"Viewing ads has been {1}."
 	}
 }

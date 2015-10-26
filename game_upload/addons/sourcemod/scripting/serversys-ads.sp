@@ -44,15 +44,15 @@ public void OnServerIDLoaded(int ServerID){
 	Sys_LoadAdverts();
 }
 
+public void OnClientPutInServer(int client){
+	Ads_Enabled[client] = true;
+}
+
 public void OnClientCookiesCached(int client){
 	char enabled[16];
 	GetClientCookie(client, Ads_Cookie, enabled, sizeof(enabled));
 
 	Ads_Enabled[client] = view_as<bool>(StringToInt(enabled));
-}
-
-public void OnClientDisconnect(int client){
-	Ads_Enabled[client] = false;
 }
 
 public void OnAllPluginsLoaded(){
@@ -87,9 +87,9 @@ void LoadConfig(){
     }
 
 	EnablePlugin = view_as<bool>(KvGetNum(kv, "enabled", 1));
-	KvGetString(kv, "ads-prefix", Ads_Prefix, sizeof(Ads_Prefix), "[Ads]");
-	KvGetString(kv, "ads-command", Ads_Command, sizeof(Ads_Command), "!ads /ads !toggleads /toggleads");
-	Ads_Interval = KvGetFloat(kv, "ads-interval", 90.0);
+	KvGetString(kv, "prefix", Ads_Prefix, sizeof(Ads_Prefix), "");
+	KvGetString(kv, "command", Ads_Command, sizeof(Ads_Command), "!ads /ads !toggleads /toggleads");
+	Ads_Interval = KvGetFloat(kv, "interval", 90.0);
 
 
 	Sys_KillHandle(kv);
@@ -131,23 +131,41 @@ public void Sys_LoadAdverts_CB(Handle owner, Handle hndl, const char[] error, an
 }
 
 public Action Sys_Adverts_Timer(Handle timer, any data){
-	if(Ads_Array != INVALID_HANDLE){
-		if(Ads_Array.Length > 0){
-			char current_ad[128];
-			Ads_Array.GetString(Ads_Current, current_ad, sizeof(current_ad));
+	if(EnablePlugin){
+		if(Ads_Array != INVALID_HANDLE){
+			if(Ads_Array.Length > 0){
+				char current_ad[256];
+				Ads_Array.GetString(Ads_Current, current_ad, sizeof(current_ad));
 
-			PrintTextChatAll("%s %s", Ads_Prefix, current_ad);
+				char server_name[64];
+				Sys_GetServerName(server_name, sizeof(server_name));
+				char server_ip[64];
+				Sys_GetServerIP(server_ip, sizeof(server_ip));
+
+				while(StrContains(current_ad, "{{SERVER_NAME}}", true) != -1){
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_NAME}}", server_name);
+				}
+
+				while(StrContains(current_ad, "{{SERVER_IP}}", true) != -1){
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_IP}}", server_ip);
+				}
+
+				for(int client = 1; client <= MaxClients; client++){
+					if(IsClientInGame(client) && Ads_Enabled[client])
+						PrintTextChat(client, "%s%s", Ads_Prefix, current_ad);
+				}
+			}
+		}else{
+			if(LoadAttempts <= 5)
+				Sys_LoadAdverts();
+			else
+				SetFailState("[serversys] ads :: Too many attempts to connect.");
 		}
-	}else{
-		if(LoadAttempts <= 5)
-			Sys_LoadAdverts();
-		else
-			SetFailState("[serversys] ads :: Too many attempts to connect.");
-	}
 
-	if(Ads_Current <= Ads_Array.Length){
-		Ads_Current++;
-	}else{
-		Ads_Current = 0;
+		if(Ads_Current <= Ads_Array.Length){
+			Ads_Current++;
+		}else{
+			Ads_Current = 0;
+		}
 	}
 }

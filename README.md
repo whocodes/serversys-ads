@@ -9,6 +9,9 @@ Server-Sys Ads is a simple module for Server-Sys that implements SQL based chat-
 ## Compatibility
 * Any SourceMod game.
 
+## Replaced tags
+* {{SERVER_NAME}} - the name of the current server
+* {{SERVER_IP}}	- the IP of the current server
+
 ## Requirements
 * [Server-Sys](https://github.com/whocodes/serversys) and it's requirements
-* [Server-Sys Web-PHP](https://github.com/whocodes/serversys-web-php) or [Server-Sys Web-JS](https://github.com/whocodes/serversys-web-js) and it's requirements

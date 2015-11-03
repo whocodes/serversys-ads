@@ -65,12 +65,12 @@ public void Command_ToggleAds(int client, const char[] command, const char[] arg
 			case true:{
 				SetClientCookie(client, Ads_Cookie, "0");
 				Ads_Enabled[client] = false;
-				PrintTextChat(client, "%t", "Ads toggled", "disabled");
+				CPrintToChat(client, "%t", "Ads toggled", "disabled");
 			}
 			case false:{
 				SetClientCookie(client, Ads_Cookie, "1");
 				Ads_Enabled[client] = true;
-				PrintTextChat(client, "%t", "Ads toggled", "enabled");
+				CPrintToChat(client, "%t", "Ads toggled", "enabled");
 			}
 		}
 	}
@@ -152,7 +152,7 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 
 				for(int client = 1; client <= MaxClients; client++){
 					if(IsClientInGame(client) && Ads_Enabled[client])
-						PrintTextChat(client, "%s%s", Ads_Prefix, current_ad);
+						CPrintToChat(client, "%s%s", Ads_Prefix, current_ad);
 				}
 			}
 		}else{

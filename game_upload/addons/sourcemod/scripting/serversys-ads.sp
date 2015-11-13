@@ -18,7 +18,7 @@ public Plugin myinfo = {
 
 bool 		EnablePlugin = true;
 ArrayList 	Ads_Array;
-char 		Ads_Prefix[32];
+char 		Ads_Prefix[64];
 char 		Ads_Command[128];
 float 		Ads_Interval;
 int 		Ads_Current = 0;
@@ -36,7 +36,7 @@ public void OnPluginStart(){
 
 	Ads_Cookie = RegClientCookie("sys_ads_enable", "Whether or not the client wishes to see chat ads.", CookieAccess_Public);
 
-	Ads_Array = new ArrayList(ByteCountToCells(128));
+	Ads_Array = new ArrayList(ByteCountToCells(512));
 }
 
 public void OnServerIDLoaded(int ServerID){
@@ -117,7 +117,7 @@ public void Sys_LoadAdverts_CB(Handle owner, Handle hndl, const char[] error, an
 
 	Ads_Array.Clear();
 
-	char temp_string[128];
+	char temp_string[512];
 
 	while(SQL_FetchRow(hndl)){
 		SQL_FetchString(hndl, 0, temp_string, sizeof(temp_string));
@@ -134,13 +134,20 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 	if(EnablePlugin){
 		if(Ads_Array != INVALID_HANDLE){
 			if(Ads_Array.Length > 0){
-				char current_ad[256];
+				if((Ads_Array.Length - 1) > Ads_Current){
+					Ads_Current++;
+				}else{
+					Ads_Current = 0;
+				}
+				char current_ad[512];
 				Ads_Array.GetString(Ads_Current, current_ad, sizeof(current_ad));
 
 				char server_name[64];
 				Sys_GetServerName(server_name, sizeof(server_name));
 				char server_ip[64];
 				Sys_GetServerIP(server_ip, sizeof(server_ip));
+				char server_map[64];
+				GetCurrentMap(server_map, sizeof(server_map));
 
 				while(StrContains(current_ad, "{{SERVER_NAME}}", true) != -1){
 					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_NAME}}", server_name);
@@ -148,6 +155,10 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 
 				while(StrContains(current_ad, "{{SERVER_IP}}", true) != -1){
 					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_IP}}", server_ip);
+				}
+
+				while(StrContains(current_ad, "{{SERVER_MAP}}", true) != -1){
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_MAP}}", server_map);
 				}
 
 				for(int client = 1; client <= MaxClients; client++){
@@ -160,12 +171,6 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 				Sys_LoadAdverts();
 			else
 				SetFailState("[serversys] ads :: Too many attempts to connect.");
-		}
-
-		if(Ads_Current < Ads_Array.Length){
-			Ads_Current++;
-		}else{
-			Ads_Current = 0;
 		}
 	}
 }

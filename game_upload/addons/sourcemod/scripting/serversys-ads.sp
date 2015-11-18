@@ -20,6 +20,8 @@ bool 		EnablePlugin = true;
 ArrayList 	Ads_Array;
 char 		Ads_Prefix[64];
 char 		Ads_Command[128];
+char 		Ads_VariableColor[32];
+char 		Ads_DefaultColor[32];
 float 		Ads_Interval;
 int 		Ads_Current = 0;
 bool 		Ads_Enabled[MAXPLAYERS+1] = {false, ...};
@@ -88,6 +90,10 @@ void LoadConfig(){
 
 	EnablePlugin = view_as<bool>(KvGetNum(kv, "enabled", 1));
 	KvGetString(kv, "prefix", Ads_Prefix, sizeof(Ads_Prefix), "");
+
+	KvGetString(kv, "var_color", Ads_VariableColor, sizeof(Ads_VariableColor), "{GREEN}");
+	KvGetString(kv, "def_color", Ads_DefaultColor, sizeof(Ads_DefaultColor), "{DEFAULT}");
+
 	KvGetString(kv, "command", Ads_Command, sizeof(Ads_Command), "!ads /ads !toggleads /toggleads");
 	Ads_Interval = KvGetFloat(kv, "interval", 90.0);
 
@@ -136,9 +142,9 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 			if(Ads_Array.Length > 0){
 				if((Ads_Array.Length - 1) > Ads_Current){
 					Ads_Current++;
-				}else{
+				else
 					Ads_Current = 0;
-				}
+
 				char current_ad[512];
 				Ads_Array.GetString(Ads_Current, current_ad, sizeof(current_ad));
 
@@ -150,20 +156,29 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 				GetCurrentMap(server_map, sizeof(server_map));
 
 				while(StrContains(current_ad, "{{SERVER_NAME}}", true) != -1){
-					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_NAME}}", server_name);
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_NAME}}", server_name, false);
 				}
-
 				while(StrContains(current_ad, "{{SERVER_IP}}", true) != -1){
-					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_IP}}", server_ip);
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_IP}}", server_ip, false);
+				}
+				while(StrContains(current_ad, "{{SERVER_MAP}}", true) != -1){
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_MAP}}", server_map, false);
 				}
 
-				while(StrContains(current_ad, "{{SERVER_MAP}}", true) != -1){
-					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_MAP}}", server_map);
+
+				char buffer[1024];
+				Format(buffer, sizeof(buffer), "%s%s", Ads_Prefix, current_ad);
+
+				while(StrContains(buffer, "{{DEF_COLOR}}", true) != -1){
+					ReplaceString(buffer, sizeof(buffer), "{{DEF_COLOR}}", Ads_DefaultColor, false);
+				}
+				while(StrContains(buffer, "{{VAR_COLOR}}", true) != -1){
+					ReplaceString(buffer, sizeof(buffer), "{{VAR_COLOR}}", Ads_VariableColor, false);
 				}
 
 				for(int client = 1; client <= MaxClients; client++){
 					if(IsClientInGame(client) && Ads_Enabled[client])
-						CPrintToChat(client, "%s%s", Ads_Prefix, current_ad);
+						CPrintToChat(client, "%s", buffer);
 				}
 			}
 		}else{

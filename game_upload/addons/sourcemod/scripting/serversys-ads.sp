@@ -140,7 +140,7 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 	if(EnablePlugin){
 		if(Ads_Array != INVALID_HANDLE){
 			if(Ads_Array.Length > 0){
-				if((Ads_Array.Length - 1) > Ads_Current){
+				if((Ads_Array.Length - 1) > Ads_Current)
 					Ads_Current++;
 				else
 					Ads_Current = 0;

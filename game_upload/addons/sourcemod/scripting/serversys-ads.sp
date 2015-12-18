@@ -152,8 +152,26 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 				Sys_GetServerName(server_name, sizeof(server_name));
 				char server_ip[64];
 				Sys_GetServerIP(server_ip, sizeof(server_ip));
-				char server_map[64];
+				char server_map[128];
 				GetCurrentMap(server_map, sizeof(server_map));
+
+#if SOURCEMOD_V_MAJOR >= 1 && (SOURCEMOD_V_MINOR >= 8)
+
+				GetMapDisplayName(server_map, server_map, sizeof(server_map));
+
+#endif
+
+				char server_nextmap[128];
+				if(GetNextMap(server_nextmap, sizeof(server_nextmap))){
+
+#if SOURCEMOD_V_MAJOR >= 1 && (SOURCEMOD_V_MINOR >= 8)
+
+						GetMapDisplayName(server_nextmap, server_nextmap, sizeof(server_nextmap));
+
+#endif
+
+				}else
+					Format(server_nextmap, sizeof(server_nextmap), "undecided");
 
 				while(StrContains(current_ad, "{{SERVER_NAME}}", true) != -1){
 					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_NAME}}", server_name, false);
@@ -163,6 +181,9 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 				}
 				while(StrContains(current_ad, "{{SERVER_MAP}}", true) != -1){
 					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_MAP}}", server_map, false);
+				}
+				while(StrContains(current_ad, "{{SERVER_NEXTMAP}}", true) != -1){
+					ReplaceString(current_ad, sizeof(current_ad), "{{SERVER_NEXTMAP}}", server_nextmap, false);
 				}
 
 
@@ -176,9 +197,22 @@ public Action Sys_Adverts_Timer(Handle timer, any data){
 					ReplaceString(buffer, sizeof(buffer), "{{VAR_COLOR}}", Ads_VariableColor, false);
 				}
 
+
+				char player_name[64];
 				for(int client = 1; client <= MaxClients; client++){
-					if(IsClientInGame(client) && Ads_Enabled[client])
+					if(IsClientInGame(client) && Ads_Enabled[client]){
+						GetClientName(client, player_name, sizeof(player_name));
+
+						while(StrContains(buffer, "{{PLAYER_NAME}}", true) != -1){
+							ReplaceString(buffer, sizeof(buffer), "{{PLAYER_NAME}}", player_name, false);
+						}
+
 						CPrintToChat(client, "%s", buffer);
+
+						while(StrContains(buffer, player_name, true) != -1){
+							ReplaceString(buffer, sizeof(buffer), player_name, "{{PLAYER_NAME}}", false);
+						}
+					}
 				}
 			}
 		}else{
